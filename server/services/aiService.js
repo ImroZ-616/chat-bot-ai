@@ -3,7 +3,18 @@ import { getSystemPrompt } from "./promptService.js";
 
 const MODEL = "gemini-3.6-flash";
 
-export async function generateResponse(message, mode = "general") {
+function formatMessages(messages) {
+  return messages.map((message) => ({
+    role: message.role === "assistant" ? "model" : "user",
+    parts: [
+      {
+        text: message.content
+      }
+    ]
+  }));
+}
+
+export async function generateResponse(messages, mode = "general") {
   const systemPrompt = getSystemPrompt(mode);
 
   const response = await ai.models.generateContent({
@@ -13,7 +24,7 @@ export async function generateResponse(message, mode = "general") {
       systemInstruction: systemPrompt
     },
 
-    contents: message
+    contents: formatMessages(messages)
   });
 
   return response.text;

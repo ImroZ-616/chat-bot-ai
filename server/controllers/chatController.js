@@ -2,12 +2,12 @@ import { generateResponse } from "../services/aiService.js";
 
 export async function chatController(req, res) {
   try {
-    const { message, mode } = req.body;
+    const { messages, mode } = req.body;
 
-    if (!message || typeof message !== "string") {
+    if (!Array.isArray(messages) || messages.length === 0) {
       return res.status(400).json({
         success: false,
-        error: "Message is required."
+        error: "Messages must be a non-empty array."
       });
     }
 
@@ -20,14 +20,29 @@ export async function chatController(req, res) {
       });
     }
 
+    for (const message of messages) {
+      if (
+        !message ||
+        !["user", "assistant"].includes(message.role) ||
+        typeof message.content !== "string"
+      ) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid message format."
+        });
+      }
+    }
+
+    const currentMode = mode || "general";
+
     const reply = await generateResponse(
-      message,
-      mode || "general"
+      messages,
+      currentMode
     );
 
     res.json({
       success: true,
-      mode: mode || "general",
+      mode: currentMode,
       reply
     });
 
