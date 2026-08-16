@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import chatRoutes from "./routes/chatRoutes.js";
 
 dotenv.config();
 
@@ -16,6 +17,8 @@ app.get("/api/health", (req, res) => {
     message: "Chat AI Box server is running"
   });
 });
+
+app.use("/api/chat", chatRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
